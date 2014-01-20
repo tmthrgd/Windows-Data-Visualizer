@@ -1,2 +1,2 @@
-Windows-Data-Visualizer
+Windows Data Visualizer
 =======================
