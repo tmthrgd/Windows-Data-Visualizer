@@ -1,0 +1,10 @@
+.DS_Store
+/obj/
+/bin/*/*.bson
+/bin/*/*.bson.gz
+/bin/*/*.json
+/bin/*/*.json.gz
+#/bin/*/*.xml
+/bin/*/*.xml.gz
+/Windows Data Visualizer.suo
+*~

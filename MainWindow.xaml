@@ -1,0 +1,529 @@
+﻿<Window x:Class="Com.Xenthrax.WindowsDataVisualizer.MainWindow"
+		x:Name="Window"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:Data="clr-namespace:Com.Xenthrax.WindowsDataVisualizer.Data"
+		xmlns:XAML="clr-namespace:Com.Xenthrax.WindowsDataVisualizer.XAML"
+		xmlns:complex="clr-namespace:DaisleyHarrison.WPF.ComplexDataTemplates;assembly=ComplexDataTemplates"
+		xmlns:Collections="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+		Title="Windows Data Visualizer"
+		Height="600"
+		Width="800"
+		Closed="Window_Closed"
+		WindowState="Maximized">
+	<Window.CommandBindings>
+		<CommandBinding Command="Open" Executed="Open_CommandBinding_Executed"/>
+		<CommandBinding Command="New" Executed="New_CommandBinding_Executed"/>
+		<CommandBinding Command="Save" Executed="Save_CommandBinding_Executed"/>
+		<CommandBinding Command="Close" Executed="Close_CommandBinding_Executed"/>
+	</Window.CommandBindings>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="20"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Menu Grid.Row="0"
+			  Background="#F0F0F0">
+			<MenuItem Header="_File" Name="FileMenu">
+				<MenuItem Header="_New" Command="New"/>
+				<MenuItem Header="_Open" Command="Open"/>
+				<MenuItem Header="_Save" Command="Save"/>
+				<Separator/>
+				<MenuItem Header="_Exit" Command="Close"/>
+			</MenuItem>
+		</Menu>
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition/>
+				<ColumnDefinition Width="1"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<TreeView Grid.Column="0"
+					  BorderThickness="0"
+					  Name="DataTree"
+					  SelectedItemChanged="DataTree_SelectedItemChanged"
+					  Padding="5,5,5,5">
+				<TreeView.Resources>
+					<complex:ComplexGroupConverter x:Key="ComplexGroupConverter"/>
+					<complex:ComplexGroupDataTemplateSelector x:Key="ComplexGroupDataTemplateSelector" DiscoveryMethod="Key,Type,Interface,Hierarchy,NoCache"/>
+					<XAML:ComplexBindingGroupConverter x:Key="ComplexBindingGroupConverter"/>
+					<XAML:GetTypeNameConverter x:Key="GetTypeFullNameConverter" Fullname="True"/>
+					<XAML:IEnumerableCountConverter x:Key="IEnumerableCountConverter"/>
+				</TreeView.Resources>
+				<!--Data-->
+				<TreeViewItem DataContext="{Binding Data, ElementName=Window}"
+							  Header="Data"
+							  IsExpanded="True">
+					<TreeViewItem Header="Email Clients"
+								  IsExpanded="True">
+						<!--Thunderbird-->
+						<TreeViewItem Header="{Binding TargetNullValue=Thunderbird}"
+									  DataContext="{Binding Thunderbird}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Thunderbird+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+					</TreeViewItem>
+					<TreeViewItem Header="FTP Managers"
+								  IsExpanded="True">
+						<!--FileZilla-->
+						<TreeViewItem Header="{Binding TargetNullValue=FileZilla}"
+									  DataContext="{Binding FileZilla}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:FileZilla+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Servers" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="ServersTemplate"/>
+											<Binding Path="RecentServers" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="RecentServersTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="ServersTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Servers, StringFormat=Servers ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="RecentServersTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Recent Servers, StringFormat=Recent Servers ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--FlashFXP-->
+						<TreeViewItem Header="{Binding TargetNullValue=FlashFXP}"
+									  DataContext="{Binding FlashFXP}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:FlashFXP+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="SitesServers" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="SitesServersTemplate"/>
+											<Binding Path="QuickServers" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="QuickServersTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="SitesServersTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Sites Servers, StringFormat=Sites Servers ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="QuickServersTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Quick Servers, StringFormat=Quick Servers ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+					</TreeViewItem>
+					<TreeViewItem Header="Instant Messaging"
+								  IsExpanded="True">
+						<!--Digsby-->
+						<TreeViewItem Header="{Binding TargetNullValue=Digsby}"
+									  DataContext="{Binding Digsby}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Digsby+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Accounts" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="AccountsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="AccountsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Accounts, StringFormat=Accounts ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--libpurple-->
+						<TreeViewItem Header="{Binding TargetNullValue=libpurple}"
+									  DataContext="{Binding libpurple}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:libpurple+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Accounts" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="AccountsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="AccountsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Accounts, StringFormat=Accounts ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--Trillian-->
+						<TreeViewItem Header="{Binding TargetNullValue=Trillian}"
+									  DataContext="{Binding Trillian}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Trillian+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Accounts" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="AccountsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="AccountsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Accounts, StringFormat=Accounts ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--WindowsLiveMessenger-->
+						<TreeViewItem Header="{Binding TargetNullValue=Windows Live Messenger}"
+									  DataContext="{Binding WindowsLiveMessenger}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:WindowsLiveMessenger+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Accounts" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="AccountsTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="AccountsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+					</TreeViewItem>
+					<TreeViewItem Header="Web Browsers"
+								  IsExpanded="True">
+						<!--Chrome-->
+						<TreeViewItem Header="{Binding TargetNullValue=Chrome}"
+									  DataContext="{Binding Chrome}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Chrome+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="Cookies" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="CookiesTemplate"/>
+											<Binding Path="Downloads" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="DownloadsTemplate"/>
+											<Binding Path="FormHistory" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="FormHistoryTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+											<Binding Path="TopSites" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="TopSitesTemplate"/>
+											<Binding Path="CurrentSession" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="CurrentSessionTemplate"/>
+											<Binding Path="LastSession" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="LastSessionTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="CookiesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Cookies, StringFormat=Cookies ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="DownloadsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Downloads, StringFormat=Downloads ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="FormHistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Form History, StringFormat=Form History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="TopSitesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Top Sites, StringFormat=Top Sites ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="CurrentSessionTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Current Session, StringFormat=Current Session ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="LastSessionTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Last Session, StringFormat=Last Session ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Chrome+BookmarkMenu}" ItemsSource="{Binding Bookmarks}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Chrome+Window}" ItemsSource="{Binding Tabs}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--Firefox-->
+						<TreeViewItem Header="{Binding TargetNullValue=Firefox}"
+									  DataContext="{Binding Firefox}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="Cookies" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="CookiesTemplate"/>
+											<Binding Path="Downloads" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="DownloadsTemplate"/>
+											<Binding Path="FormHistory" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="FormHistoryTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+											<Binding Path="Windows" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="WindowsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="CookiesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Cookies, StringFormat=Cookies ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="DownloadsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Downloads, StringFormat=Downloads ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="FormHistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Form History, StringFormat=Form History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="WindowsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Windows, StringFormat=Windows ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Bookmark}" ItemsSource="{Binding Bookmarks}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Window}" ItemsSource="{Binding Children}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Tab}" ItemsSource="{Binding Children}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--IE-->
+						<TreeViewItem Header="{Binding TargetNullValue=IE}"
+									  DataContext="{Binding IE}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:IE+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--Opera-->
+						<TreeViewItem Header="{Binding TargetNullValue=Opera}"
+									  DataContext="{Binding Opera}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Opera+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--Safari-->
+						<TreeViewItem Header="{Binding TargetNullValue=Safari}"
+									  DataContext="{Binding Safari}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Safari+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="Cookies" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="CookiesTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+											<Binding Path="TopSites" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="TopSitesTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="CookiesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Cookies, StringFormat=Cookies ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="TopSitesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Top Sites, StringFormat=Top Sites ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Safari+Bookmark}" ItemsSource="{Binding Children}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+						<!--SeaMonkey-->
+						<TreeViewItem Header="{Binding TargetNullValue=SeaMonkey}"
+									  DataContext="{Binding SeaMonkey}"
+									  ItemsSource="{Binding Profiles}"
+									  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+							<TreeViewItem.Resources>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Profile}">
+									<HierarchicalDataTemplate.ItemsSource>
+										<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+											<Binding Path="Bookmarks" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="BookmarksTemplate"/>
+											<Binding Path="Cookies" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="CookiesTemplate"/>
+											<Binding Path="Downloads" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="DownloadsTemplate"/>
+											<Binding Path="FormHistory" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="FormHistoryTemplate"/>
+											<Binding Path="History" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="HistoryTemplate"/>
+											<Binding Path="Passwords" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordsTemplate"/>
+											<Binding Path="Windows" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="WindowsTemplate"/>
+										</MultiBinding>
+									</HierarchicalDataTemplate.ItemsSource>
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="BookmarksTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Bookmarks, StringFormat=Bookmarks ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="CookiesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Cookies, StringFormat=Cookies ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="DownloadsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Downloads, StringFormat=Downloads ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="FormHistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Form History, StringFormat=Form History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="HistoryTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=History, StringFormat=History ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="PasswordsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Passwords, StringFormat=Passwords ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate x:Key="WindowsTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+									<TextBlock Text="{Binding Items, FallbackValue=Windows, StringFormat=Windows ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Bookmark}" ItemsSource="{Binding Bookmarks}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Window}" ItemsSource="{Binding Children}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+								<HierarchicalDataTemplate DataType="{x:Type Data:Firefox+Tab}" ItemsSource="{Binding Children}">
+									<TextBlock Text="{Binding}"/>
+								</HierarchicalDataTemplate>
+							</TreeViewItem.Resources>
+						</TreeViewItem>
+					</TreeViewItem>
+					<!--Windows-->
+					<TreeViewItem Header="{Binding TargetNullValue=Windows}"
+								  DataContext="{Binding Windows}"
+								  ItemsSource="{Binding Profiles}"
+								  ItemTemplateSelector="{StaticResource ComplexGroupDataTemplateSelector}">
+						<TreeViewItem.Resources>
+							<HierarchicalDataTemplate DataType="{x:Type Data:Windows+Profile}">
+								<HierarchicalDataTemplate.ItemsSource>
+									<MultiBinding Converter="{StaticResource ComplexGroupConverter}">
+										<Binding Path="PasswordHashes" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="PasswordHashesTemplate"/>
+										<Binding Path="ProductKeys" Converter="{StaticResource ComplexBindingGroupConverter}" ConverterParameter="ProductKeysTemplate"/>
+									</MultiBinding>
+								</HierarchicalDataTemplate.ItemsSource>
+								<TextBlock Text="{Binding}"/>
+							</HierarchicalDataTemplate>
+							<HierarchicalDataTemplate x:Key="PasswordHashesTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+								<TextBlock Text="{Binding Items, FallbackValue=Password Hashes, StringFormat=Password Hashes ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+							</HierarchicalDataTemplate>
+							<HierarchicalDataTemplate x:Key="ProductKeysTemplate" ItemsSource="{Binding Items, IsAsync=True}">
+								<TextBlock Text="{Binding Items, FallbackValue=Product Keys, StringFormat=Product Keys ({0}), Converter={StaticResource IEnumerableCountConverter}, IsAsync=True}"/>
+							</HierarchicalDataTemplate>
+						</TreeViewItem.Resources>
+					</TreeViewItem>
+				</TreeViewItem>
+				<!--Errors-->
+				<TreeViewItem DataContext="{Binding Exceptions, ElementName=Window}"
+							  ItemsSource="{Binding}"
+							  IsExpanded="True">
+					<TreeViewItem.Header>
+						<TextBlock Text="{Binding Count, FallbackValue=Errors, StringFormat=Errors ({0})}" FontStyle="Italic"/>
+					</TreeViewItem.Header>
+					<TreeViewItem.ItemTemplate>
+						<DataTemplate>
+							<TextBlock>
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0}: {1}">
+										<Binding Converter="{StaticResource GetTypeFullNameConverter}" />
+										<Binding Path="Message" />
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
+						</DataTemplate>
+					</TreeViewItem.ItemTemplate>
+				</TreeViewItem>
+			</TreeView>
+			<Border Grid.Column="1"
+					BorderThickness="1,0,0,0"
+					BorderBrush="LightGray"/>
+			<RichTextBox Name="DataTextBox"
+						 IsReadOnly="True"
+						 Grid.Column="2"
+						 BorderThickness="0"
+						 ScrollViewer.VerticalScrollBarVisibility="Visible"
+						 Padding="5,5,5,5">
+				<RichTextBox.Resources>
+					<Style TargetType="{x:Type Hyperlink}">
+						<EventSetter Event="RequestNavigate" Handler="Hyperlink_RequestNavigate"/>
+					</Style>
+				</RichTextBox.Resources>
+			</RichTextBox>
+		</Grid>
+	</Grid>
+</Window>
